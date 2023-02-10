@@ -2,9 +2,10 @@ import fastify from 'fastify';
 import { z } from 'zod'
 import prisma from '../../lib/prisma';
 
-
-
 export default function main(PORT: number, debug?: boolean) {
+    const rootUri = process.env.DOMAIN_URI
+    if (!rootUri) throw new Error("router :: Expected environment variable DOMAIN_URI to be set.")
+
     const app = fastify({ logger: debug || false })
 
     app.get("/", async (_req, _res) => {
@@ -62,14 +63,16 @@ export default function main(PORT: number, debug?: boolean) {
             vanity?: string
         }
 
+        const routeUrl = body.vanity || (Math.random() + 1).toString(36).substring(2)
+
         try {
             await prisma.link.create({
                 data: {
-                    vanity: body.vanity || (Math.random() + 1).toString(36).substring(2),
+                    vanity: routeUrl,
                     destUrl: body.toUrl
                 }
             })
-        } catch (e) {
+        } catch (err) {
             console.log(`router :: Failed to create URL instance ${req.id} in database!`)
 
             res.status(502)
@@ -83,7 +86,8 @@ export default function main(PORT: number, debug?: boolean) {
 
         return {
             status: 200,
-            message: "Success"
+            message: "Success",
+            url: rootUri.endsWith('/') ? (rootUri + routeUrl) : rootUri + "/" + routeUrl
         }
     })
 
