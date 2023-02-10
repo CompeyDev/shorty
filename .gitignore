@@ -1,0 +1,9 @@
+# Environment variables
+.env*
+
+# Compiled build outputs
+dist/
+**.tsbuildinfo
+
+# Dependencies
+node_modules
