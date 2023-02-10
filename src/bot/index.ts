@@ -6,6 +6,6 @@ export default function main(): SapphireClient<boolean> {
     const client = new SapphireClient({ intents: 32767 })
 
     client.login(process.env.TOKEN)
-
+    
     return client
 }
