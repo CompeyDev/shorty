@@ -6,7 +6,7 @@ mkdir('./data', null, (err) => {
     if (err?.code == "EEXIST") {
         return;
     } else {
-        throw new Error("self :: Failed to initialize data directory")
+        throw new Error("bootstrapper :: Failed to initialize data directory")
     }
 })
 

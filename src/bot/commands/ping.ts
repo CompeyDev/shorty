@@ -19,6 +19,6 @@ export class PingCommand extends Command {
       return interaction.editReply("pong!");
     }
 
-    return interaction.editReply('woops, this shouldn\' be happening...');
+    return interaction.editReply('woops, this shouldn\'t be happening...');
   }
 }
