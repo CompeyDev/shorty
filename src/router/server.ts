@@ -1,12 +1,20 @@
 import fastify from 'fastify';
 import { z } from 'zod'
 import prisma from '../../lib/prisma';
+import path from 'path';
+
+import fastify_static = require('@fastify/static');
 
 export default function main(PORT: number, debug?: boolean) {
     const rootUri = process.env.DOMAIN_URI
     if (!rootUri) throw new Error("router :: Expected environment variable DOMAIN_URI to be set.")
 
     const app = fastify({ logger: debug || false })
+
+    app.register(fastify_static, {
+        root: path.join(process.cwd(), 'public'),
+        prefix: "/static"
+    })
 
     app.get("/", async (_req, _res) => {
         return `
@@ -33,12 +41,7 @@ export default function main(PORT: number, debug?: boolean) {
 
                 res.redirect(destUrl)
             } else {
-                res.status(404)
-
-                return {
-                    status: 404,
-                    message: "URL not found!"
-                }
+                await res.code(404).sendFile("404.html")
             }
         }
     })
@@ -49,13 +52,11 @@ export default function main(PORT: number, debug?: boolean) {
             vanity: z.string().nullish()
         })
 
-        if (!bodyValidator.safeParse(req.body).success) {
-            res.status(400)
-
-            return {
+        if (!bodyValidator.safeParse(req.body).success) {            
+            res.code(400).send({
                 status: 400,
                 message: "Invalid request body"
-            }
+            })
         }
 
         const body = req.body as {
@@ -75,20 +76,17 @@ export default function main(PORT: number, debug?: boolean) {
         } catch (err) {
             console.log(`router :: Failed to create URL instance ${req.id} in database!`)
 
-            res.status(502)
-            return {
+            res.code(502).send({
                 status: 502,
-                message: "Internal error"
-            }
+                message: "Internal server error"
+            })
         }
 
-        res.status(200)
-
-        return {
+        res.code(200).send({
             status: 200,
             message: "Success",
             url: rootUri.endsWith('/') ? (rootUri + routeUrl) : rootUri + "/" + routeUrl
-        }
+        })
     })
 
     app.listen({ port: PORT })
