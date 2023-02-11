@@ -1,13 +1,13 @@
 {
-    "compilerOptions": {
-      "target": "ESNext",                                  
-      "module": "commonjs",                                
-      "outDir": "dist",
-      "rootDirs": ["src", "lib"],                                   
-      "esModuleInterop": true,                       
-      "forceConsistentCasingInFileNames": true, 
-      "strict": true,                                     
-    },
-    "include": ["**/*.ts"],
-    "exclude": ["node_modules", "tests", "dist"],
-  }
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "commonjs",
+    "outDir": "dist",
+    "rootDirs": ["src", "lib"],
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "tests", "dist"]
+}
