@@ -1,99 +1,101 @@
-import fastify from 'fastify';
+/* eslint-disable no-irregular-whitespace */
+import fastify from 'fastify'
 import { z } from 'zod'
-import prisma from '../../lib/prisma';
-import path from 'path';
+import prisma from '../../lib/prisma'
+import path from 'path'
 
-import fastify_static = require('@fastify/static');
+import fastify_static = require('@fastify/static')
 
-export default function main(PORT: number, debug?: boolean) {
-    const rootUri = process.env.DOMAIN_URI
-    if (!rootUri) throw new Error("router :: Expected environment variable DOMAIN_URI to be set.")
+export default async function main (PORT: number, debug?: boolean): Promise<void> {
+  const rootUri = process.env.DOMAIN_URI
+  if ((rootUri == null) || rootUri === undefined) throw new Error('router :: Expected environment variable DOMAIN_URI to be set.')
 
-    const app = fastify({ logger: debug || false })
+  const app = fastify({ logger: debug ?? false })
 
-    app.register(fastify_static, {
-        root: path.join(process.cwd(), 'public'),
-        prefix: "/static"
-    })
+  await app.register(fastify_static, {
+    root: path.join(process.cwd(), 'public'),
+    prefix: '/static'
+  })
 
-    app.get("/", async (_req, _res) => {
-        return `
+  app.get('/', async () => {
+    return `
 ███████ ██   ██  ██████  ███████ ██████ ██  ██ 
 ██      ██   ██ ██    ██ ██   ██   ██   ██  ██  
 ███████ ███████ ██    ██ ██████    ██    ████   
      ██ ██   ██ ██    ██ ██   ██   ██     ██    
 ███████ ██   ██  ██████  ██   ██   ██     ██    
         ` + '\nThis is a server instance automatically launched by shorty.'
+  })
+
+  app.route({
+    method: ['GET', 'POST', 'PUT'],
+    url: '/:vanity',
+    handler: async (req, res) => {
+      const vanity = (req.params as { vanity: string }).vanity
+
+      const urlData = await prisma.link.findUnique({
+        where: { vanity }
+      })
+
+      if (urlData != null) {
+        const destUrl = urlData.destUrl
+
+        await res.redirect(destUrl)
+      } else {
+        await res.code(404).sendFile('404.html')
+      }
+    }
+  })
+
+  app.post('/api/create', async (req, res) => {
+    const bodyValidator = z.object({
+      toUrl: z.string().url(),
+      vanity: z.string().nullish()
     })
 
-    app.route({
-        method: "GET",
-        url: "/:vanity",
-        handler: async (req, res) => {
-            const vanity = (req.params as { vanity: string }).vanity
+    if (!bodyValidator.safeParse(req.body).success) {
+      await res.code(400).send({
+        status: 400,
+        message: 'Invalid request body'
+      })
+    }
 
-            const urlData = await prisma.link.findUnique({
-                where: { vanity: vanity }
-            })
+    const body = req.body as {
+      toUrl: string
+      vanity?: string
+    }
 
-            if (urlData) {
-                const destUrl = urlData.destUrl
+    const routeUrl = body.vanity ?? (Math.random() + 1).toString(36).substring(2)
 
-                res.redirect(destUrl)
-            } else {
-                await res.code(404).sendFile("404.html")
-            }
+    try {
+      await prisma.link.create({
+        data: {
+          vanity: routeUrl,
+          destUrl: body.toUrl
         }
+      })
+    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      console.log(`router :: Failed to create URL instance ${req.id} in database!`)
+
+      await res.code(502).send({
+        status: 502,
+        message: 'Internal server error'
+      })
+    }
+
+    await res.code(200).send({
+      status: 200,
+      message: 'Success',
+      url: rootUri.endsWith('/') ? (rootUri + routeUrl) : rootUri + '/' + routeUrl
     })
+  })
 
-    app.post("/api/create", async (req, res) => {
-        const bodyValidator = z.object({
-            toUrl: z.string().url(),
-            vanity: z.string().nullish()
-        })
-
-        if (!bodyValidator.safeParse(req.body).success) {            
-            res.code(400).send({
-                status: 400,
-                message: "Invalid request body"
-            })
-        }
-
-        const body = req.body as {
-            toUrl: string,
-            vanity?: string
-        }
-
-        const routeUrl = body.vanity || (Math.random() + 1).toString(36).substring(2)
-
-        try {
-            await prisma.link.create({
-                data: {
-                    vanity: routeUrl,
-                    destUrl: body.toUrl
-                }
-            })
-        } catch (err) {
-            console.log(`router :: Failed to create URL instance ${req.id} in database!`)
-
-            res.code(502).send({
-                status: 502,
-                message: "Internal server error"
-            })
-        }
-
-        res.code(200).send({
-            status: 200,
-            message: "Success",
-            url: rootUri.endsWith('/') ? (rootUri + routeUrl) : rootUri + "/" + routeUrl
-        })
+  await app.listen({ port: PORT })
+    .catch((err) => {
+      console.error('router :: An error occurred when instantiating the server! Error: ', err)
     })
-
-    app.listen({ port: PORT })
-        .catch((err) => {
-            console.error("router :: An error occurred when instantiating the server! Error: ", err)
-        })
-        .then(() => {
-            console.log("router :: Server listening on port", PORT)
-        })
+    .then(() => {
+      console.log('router :: Server listening on port', PORT)
+    })
 }

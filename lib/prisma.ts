@@ -1,21 +1,22 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client'
 
 /**
  * Prisma client with production/development mode.
- * @returns {PrismaClient} 
+ * @returns {PrismaClient}
  */
-let prisma: PrismaClient;
+let prisma: PrismaClient
 
-if (process.env.NODE_ENV === "production") {
-  prisma = new PrismaClient();
+if (process.env.NODE_ENV === 'production') {
+  prisma = new PrismaClient()
 } else {
-  let globalWithPrisma = global as typeof globalThis & {
-    prisma: PrismaClient;
-  };
-  if (!globalWithPrisma.prisma) {
-    globalWithPrisma.prisma = new PrismaClient();
+  const globalWithPrisma = global as typeof globalThis & {
+    prisma: PrismaClient
   }
-  prisma = globalWithPrisma.prisma;
-} 
+  // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+  if (!globalWithPrisma.prisma) {
+    globalWithPrisma.prisma = new PrismaClient()
+  }
+  prisma = globalWithPrisma.prisma
+}
 
-export default prisma;
+export default prisma

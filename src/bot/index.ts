@@ -1,11 +1,18 @@
-import { SapphireClient } from "@sapphire/framework";
+import { SapphireClient } from '@sapphire/framework'
 
-export default function main(): SapphireClient<boolean> {
-    if (!process.env.DISCORD_ID || !process.env.DISCORD_TOKEN) throw new Error("INVALID ENV VARS")
+const DISCORD_ID = process.env.DISCORD_ID
+const DISCORD_TOKEN = process.env.DISCORD_TOKEN
+const invalidVariables = (
+  (DISCORD_ID == null || DISCORD_ID === undefined) ||
+  (DISCORD_TOKEN == null || DISCORD_TOKEN === undefined)
+)
 
-    const client = new SapphireClient({ intents: 32767 })
+export default function main (): SapphireClient<boolean> {
+  if (invalidVariables) throw new Error('INVALID ENV VARS')
 
-    client.login(process.env.TOKEN)
-    
-    return client
+  const client = new SapphireClient({ intents: 32767 })
+
+  void client.login(process.env.TOKEN)
+
+  return client
 }
