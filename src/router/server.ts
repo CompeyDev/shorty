@@ -11,16 +11,17 @@ export default async function main(
   debug?: boolean
 ): Promise<void> {
   const rootUri = process.env.DOMAIN_URI;
-  if (rootUri == null || rootUri === undefined)
+  if (rootUri == null || rootUri === undefined) {
     throw new Error(
       'router :: Expected environment variable DOMAIN_URI to be set.'
     );
+  }
 
   const app = fastify({ logger: debug ?? false });
 
   await app.register(fastify_static, {
     root: path.join(process.cwd(), 'public'),
-    prefix: '/static',
+    prefix: '/static'
   });
 
   app.get('/', async () => {
@@ -42,7 +43,7 @@ export default async function main(
       const vanity = (req.params as { vanity: string }).vanity;
 
       const urlData = await prisma.link.findUnique({
-        where: { vanity },
+        where: { vanity }
       });
 
       if (urlData != null) {
@@ -52,19 +53,19 @@ export default async function main(
       } else {
         await res.code(404).sendFile('404.html');
       }
-    },
+    }
   });
 
   app.post('/api/create', async (req, res) => {
     const bodyValidator = z.object({
       toUrl: z.string().url(),
-      vanity: z.string().nullish(),
+      vanity: z.string().nullish()
     });
 
     if (!bodyValidator.safeParse(req.body).success) {
       await res.code(400).send({
         status: 400,
-        message: 'Invalid request body',
+        message: 'Invalid request body'
       });
     }
 
@@ -80,18 +81,18 @@ export default async function main(
       await prisma.link.create({
         data: {
           vanity: routeUrl,
-          destUrl: body.toUrl,
-        },
+          destUrl: body.toUrl
+        }
       });
     } catch (err) {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       console.log(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `router :: Failed to create URL instance ${req.id} in database!`
       );
 
       await res.code(502).send({
         status: 502,
-        message: 'Internal server error',
+        message: 'Internal server error'
       });
     }
 
@@ -100,7 +101,7 @@ export default async function main(
       message: 'Success',
       url: rootUri.endsWith('/')
         ? rootUri + routeUrl
-        : rootUri + '/' + routeUrl,
+        : rootUri + '/' + routeUrl
     });
   });
 

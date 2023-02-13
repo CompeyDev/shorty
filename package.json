@@ -2,7 +2,7 @@
   "name": "shorty",
   "version": "0.1.0",
   "description": "A discord bot to quickly shorten links on a domain of choice.",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "repository": "https://github.com/CompeyDev/shorty",
   "author": "DevComp <hi@devcomp.xyz>",
   "license": "MIT",
@@ -11,7 +11,7 @@
     "build": "prisma db push && tsc",
     "dev": "ts-node-dev src/index.ts",
     "start": "ts-node src/index.ts",
-    "start:prod": "node dist/index.js",
+    "start:prod": "node dist/src/index.js",
     "lint": "prettier --write . && eslint src/ lib/",
     "lint:fix": "eslint src/ lib/ --fix"
   },
@@ -20,7 +20,7 @@
     "@prisma/client": "^4.10.1",
     "@sapphire/discord.js-utilities": "^6.0.1",
     "@sapphire/framework": "^4.1.0",
-    "discord.js": "13.x",
+    "discord.js": "~14.7.1",
     "fastify": "^4.13.0",
     "zod": "^3.20.6"
   },
