@@ -13,7 +13,7 @@ export default async function main(
   const rootUri = process.env.DOMAIN_URI;
   if (rootUri == null || rootUri === undefined) {
     throw new Error(
-      'router :: Expected environment variable DOMAIN_URI to be set.'
+      'router :: Expected env variable DOMAIN_URI to be set.'
     );
   }
 
@@ -106,7 +106,7 @@ export default async function main(
   });
 
   await app
-    .listen({ port: PORT })
+    .listen({ host: rootUri, port: PORT })
     .catch((err) => {
       console.error(
         'router :: An error occurred when instantiating the server! Error: ',
