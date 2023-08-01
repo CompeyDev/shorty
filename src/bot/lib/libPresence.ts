@@ -1,33 +1,10 @@
-import prisma from "./prisma";
+import { ExcludeEnum } from "discord.js";
+import { ActivityTypes } from "discord.js/typings/enums";
+import { client } from "../src";
 
-export class presenceStore {
-    type: String = '';
-    presence: string = '';
-    constructor() {
-        this.presence = null;
-        this.type = null;
-    }
+export function setPresence() {
+    const presenceMessage = process.env.PRESENCE_MESSAGE.split(" ")
+    const presenceType = presenceMessage[0]
 
-    public update = async (presence: string, type: string): Promise<void> => await prisma.datastore.update({
-        where: {
-            id: 1
-        },
-        data: {
-            presence: presence,
-            presenceType: type
-        }
-    });
-
-    public async get(): Promise<[{ id: 1, presence: string, presenceType: "PLAYING" | "COMPETING" | "LISTENING" | "WATCHING" }]> {
-        try {
-        const data = await prisma.datastore.findMany({
-            where: {
-                id: 1
-            },
-        })
-        console.log("libPresence :: Unpacked data -> ", data)
-        return data
-        } catch(e) { }
-    }
+    client.user?.setActivity(presenceMessage.slice(1).toString().replace(",", " "), { type: presenceType as unknown as ExcludeEnum<typeof ActivityTypes, "CUSTOM"> });
 }
-

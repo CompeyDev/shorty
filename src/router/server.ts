@@ -5,8 +5,9 @@ import prisma from '../../lib/prisma';
 import path from 'path';
 
 import fastify_static = require('@fastify/static');
+import { toNumber } from 'lodash';
 
-export default async function main(
+export default async function start(
   PORT: number,
   debug?: boolean
 ): Promise<void> {
@@ -117,3 +118,5 @@ export default async function main(
       console.log('router :: Server listening on port', PORT);
     });
 }
+
+start(toNumber(process.env.PORT) ?? 3000);

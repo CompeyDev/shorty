@@ -19,7 +19,7 @@ import { Command } from "../src/structures/Command";
 import { delay, lastIndexOf } from "lodash";
 
 
-async function HandlChatCommand(interaction: CommandInteraction) {
+async function handleChatCommand(interaction: CommandInteraction) {
     try {
         await interaction.deferReply();
     } catch (e) { }
@@ -34,7 +34,7 @@ async function HandlChatCommand(interaction: CommandInteraction) {
     });
 }
 
-function HelpMenuHandler() {
+function helpMenuHandler() {
     const row = new MessageActionRow().addComponents(
         new MessageButton()
             .setCustomId("cancelButton")
@@ -63,9 +63,9 @@ function HelpMenuHandler() {
 
     return { row, commandMenu }
 }
-async function HelpMenuManager(interaction: SelectMenuInteraction) {
-    const commandMenu = HelpMenuHandler().commandMenu
-    const row = HelpMenuHandler().row
+async function helpMenuManager(interaction: SelectMenuInteraction) {
+    const commandMenu = helpMenuHandler().commandMenu
+    const row = helpMenuHandler().row
 
     let cmds = new Map()
     let admin_cmds = new Map()
@@ -178,7 +178,7 @@ async function HelpMenuManager(interaction: SelectMenuInteraction) {
     }
 }
 
-function EvalHandler() {
+function evalHandler() {
     const modal = new Modal()
         .setCustomId('code-modal')
         .setTitle('Enter your code here');
@@ -236,14 +236,14 @@ function EvalManager(interaction: ModalSubmitInteraction) {
 
 }
 
-export async function InteractionManager(interaction: Interaction) {
+export async function interactionManager(interaction: Interaction) {
     if (interaction.isCommand()) {
         try {
             if (interaction.command.name == "eval") {
                 // eval command edge case
-                await interaction.showModal(EvalHandler());
+                await interaction.showModal(evalHandler());
             } else {
-                HandlChatCommand(interaction);
+                handleChatCommand(interaction);
             }
         } catch (e) { }
     }
@@ -260,7 +260,7 @@ export async function InteractionManager(interaction: Interaction) {
 
     if (interaction.isSelectMenu()) {
         if (interaction.customId === "select") {
-            HelpMenuManager(interaction)
+            helpMenuManager(interaction)
         }
     }
 }

@@ -26,8 +26,8 @@ export default new Command({
             .addField("Versions",
                 `${reply} Node: ${process.version}
                 ${reply} Discord.js: ${require("discord.js").version}
-                ${reply} Typescript: ${require("typescript").version}
-                ${replyEnd} Version: ${require("../../../package.json").version}
+                ${reply} TypeScript: ${require("typescript").version}
+                ${replyEnd} Platform: ${process.platform}-${process.arch}
                 `
             )
 
@@ -49,12 +49,8 @@ export default new Command({
             const row = new MessageActionRow()
 			.addComponents(
 				new MessageButton()
-                    .setURL("https://datalink.dev/")
-                    .setLabel("Website")
-                    .setStyle('LINK'),
-                new MessageButton()
-                    .setURL("https://docs.datalink.dev")
-                    .setLabel("Learn more")
+                    .setURL("https://github.com/CompeyDev/shorty")
+                    .setLabel("Source")
                     .setStyle('LINK'),
 			);
             interaction.followUp({embeds: [embed], components: [row] });

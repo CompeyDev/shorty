@@ -19,8 +19,8 @@ export default new Command({
         embed
             .addField("Server Name", interaction.guild.name, true)
             .addField("Server ID", interaction.guild.id, true)
-            .addField("Server Owner", `<@${interaction.guild.OWNER_ID}>`, true)
-            .addField("Owner ID", interaction.guild.OWNER_ID, true)
+            .addField("Server Owner", `<@${interaction.guild.ownerId}>`, true)
+            .addField("Owner ID", interaction.guild.ownerId, true)
             .addField("Members", interaction.guild.memberCount.toString(), true)
             .addField("Channels", interaction.guild.channels.cache.size.toString(), true)
             .addField("Roles", interaction.guild.roles.cache.size.toString(), true)

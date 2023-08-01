@@ -1,7 +1,9 @@
 import { Command } from "../../structures/Command";
-import { MessageEmbed } from "discord.js";
+import { ExcludeEnum, MessageEmbed } from "discord.js";
 import { client } from "../..";
-import { presenceStore } from "../../../lib/libPresence"; 
+import { ActivityTypes } from "discord.js/typings/enums";
+import { setPresence } from "../../../lib/libPresence";
+import { readFileSync } from "fs";
 
 export default new Command({
     name: "presence",
@@ -28,8 +30,6 @@ export default new Command({
         var presence = interaction.options.getString("presence");
         var type = interaction.options.getString("type");
 
-        
-
         var embed = new MessageEmbed()
             .setTitle("🟢 • Set Presence")
             .setFooter({
@@ -40,26 +40,11 @@ export default new Command({
             .setColor("#2F3136")
             .setDescription(`Presence has been set to ${type} ${presence}.`);
 
-            const store = new presenceStore();
+        // TODO: Check what working dir is
+        readFileSync(".env").toString().replace(/PRESENCE_MESSAGE=.*/, `PRESENCE_MESSAGE=${type} ${presence}`)
+        process.env.PRESENCE_MESSAGE = type + presence
 
-        if (type == 'PLAYING') {
-            await store.update(presence, "PLAYING");
-            client.user?.setActivity(`${presence}`, { type: 'PLAYING' });
-        } else if (type == 'LISTENING') {
-            await store.update(presence, "LISTENING");
-            client.user?.setActivity(`${presence}`, { type: 'LISTENING' });
-        } else if (type == 'STREAMING') {
-            await store.update(presence, "STREAMING");
-            client.user?.setActivity(`${presence}`, { type: 'STREAMING' });
-        } else if (type == 'WATCHING') {
-            await store.update(presence, "WATCHING");
-            client.user?.setActivity(`${presence}`, { type: 'WATCHING' });
-        } else if (type == 'COMPETING') {
-            await store.update(presence, "COMPETING");
-            client.user?.setActivity(`${presence}`, { type: 'COMPETING' });
-        } else {
-            interaction.followUp({ content: "Please provide a valid type of status to set", ephemeral: true }); return;
-        }
+        setPresence()
 
         interaction.followUp({ embeds: [embed] });
     }
